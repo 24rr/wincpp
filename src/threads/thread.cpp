@@ -3,6 +3,39 @@
 
 namespace wincpp::threads
 {
+    std::size_t thread_t::suspend() const
+    {
+        const auto& result = SuspendThread( handle()->native );
+
+        if ( result == static_cast< std::uint32_t >( -1 ) )
+            throw core::error::from_win32( GetLastError() );
+
+        return result;
+    }
+
+    std::size_t thread_t::resume() const
+    {
+        const auto& result = ResumeThread( handle()->native );
+
+        if ( result == static_cast< std::uint32_t >( -1 ) )
+            throw core::error::from_win32( GetLastError() );
+
+        return result;
+    }
+
+    CONTEXT thread_t::context( std::uint64_t flags ) const
+    {
+        CONTEXT c{};
+        c.ContextFlags = flags;
+
+        const auto& result = GetThreadContext( handle()->native, &c );
+
+        if ( !result )
+            throw core::error::from_win32( GetLastError() );
+
+        return c;
+    }
+
     thread_t::thread_t( const core::thread_entry_t& entry ) : entry( entry )
     {
     }

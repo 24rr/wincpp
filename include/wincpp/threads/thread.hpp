@@ -46,6 +46,25 @@ namespace wincpp::threads
             return entry.owner_id;
         }
 
+        /// <summary>
+        /// Suspends the thread.
+        /// </summary>
+        /// <returns>The previous suspend count.</returns>
+        std::size_t suspend() const;
+
+        /// <summary>
+        /// Resumes the thread.
+        /// </summary>
+        /// <returns>The previous suspend count.</returns>
+        std::size_t resume() const;
+
+        /// <summary>
+        /// Gets the thread context.
+        /// </summary>
+        /// <param name="flag">The context flags.</param>
+        /// <returns>The thread context.</returns>
+        CONTEXT context( std::uint64_t flag = CONTEXT_ALL ) const;
+
        protected:
         /// <summary>
         /// Creates a new thread object.

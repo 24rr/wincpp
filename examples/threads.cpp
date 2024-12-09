@@ -22,6 +22,10 @@ int main()
         for ( const auto& t : process->thread_factory.threads() )
         {
             std::cout << t.id() << " " << t.process_id() << std::endl;
+
+            const auto& context = t.context();
+
+            std::cout << "RIP: 0x" << std::hex << context.Rip << std::endl;
         }
     }
     catch ( const std::system_error& e )
