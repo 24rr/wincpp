@@ -1,8 +1,7 @@
 #pragma once
 
 #include <optional>
-
-#include "wincpp/core/win.hpp"
+#include <wincpp/thread_factory.hpp>
 
 namespace wincpp
 {
@@ -66,13 +65,20 @@ namespace wincpp::windows
         /// </summary>
         placement_t placement() const;
 
+        /// <summary>
+        /// Gets the thread that created the window.
+        /// </summary>
+        /// <returns>The thread that created the window.</returns>
+        threads::thread_t thread() const;
+
        private:
         /// <summary>
         /// Creates a new window object.
         /// </summary>
-        explicit window_t( HWND hwnd ) noexcept;
+        explicit window_t( const thread_factory& threads, HWND hwnd ) noexcept;
 
         HWND hwnd;
+        thread_factory tds;
     };
 
     /// <summary>

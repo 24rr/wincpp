@@ -32,14 +32,14 @@ namespace wincpp
             GetWindowThreadProcessId( hwnd, &pid );
 
             if ( pid == data.second->id() )
-                data.first->push_back( windows::window_t( hwnd ) );
+                data.first->push_back( windows::window_t( data.second->thread_factory, hwnd ) );
 
-            return true;
+            return TRUE;
         };
 
         const auto data = std::pair( &windows, p );
 
-        EnumWindows( callback, reinterpret_cast< LPARAM >( &data ) );
+        EnumWindows( static_cast< WNDENUMPROC >( callback ), reinterpret_cast< LPARAM >( &data ) );
 
         return windows;
     }

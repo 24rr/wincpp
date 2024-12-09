@@ -1,10 +1,8 @@
-#include "wincpp/windows/window.hpp"
-
-#include "wincpp/core/error.hpp"
+#include <wincpp/windows/window.hpp>
 
 namespace wincpp::windows
 {
-    window_t::window_t( HWND hwnd ) noexcept : hwnd( hwnd )
+    window_t::window_t( const thread_factory& tds, HWND hwnd ) noexcept : tds( tds ), hwnd( hwnd )
     {
     }
 
@@ -29,7 +27,7 @@ namespace wincpp::windows
         if ( !owner )
             return std::nullopt;
 
-        return window_t( owner );
+        return window_t( tds, owner );
     }
 
     std::string window_t::title() const
@@ -59,9 +57,17 @@ namespace wincpp::windows
         return GetForegroundWindow() == hwnd;
     }
 
+    threads::thread_t window_t::thread() const
+    {
+        if ( const auto& tid = GetWindowThreadProcessId( hwnd, nullptr ) )
+            return tds[ tid ];
+
+        throw core::error::from_win32( GetLastError() );
+    }
+
     window_t::placement_t window_t::placement() const
     {
-        WINDOWPLACEMENT placement;
+        WINDOWPLACEMENT placement{};
         placement.length = sizeof( WINDOWPLACEMENT );
 
         if ( !GetWindowPlacement( hwnd, &placement ) )

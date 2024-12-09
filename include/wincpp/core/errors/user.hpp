@@ -10,7 +10,12 @@ namespace wincpp::core
         /// <summary>
         /// The desired module was not found.
         /// </summary>
-        module_not_found_t
+        module_not_found_t,
+
+        /// <summary>
+        /// The desired thread was not found.
+        /// </summary>
+        thread_not_found_t
     };
 
     /// <summary>

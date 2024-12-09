@@ -20,6 +20,7 @@ namespace wincpp::core
         switch ( c )
         {
             case user_error_type_t::module_not_found_t: return "The desired module was not found.";
+            case user_error_type_t::thread_not_found_t: return "The desired thread was not found.";
             default: return "Unknown error";
         }
     }

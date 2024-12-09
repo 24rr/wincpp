@@ -5,6 +5,7 @@
 #include "memory_factory.hpp"
 #include "module_factory.hpp"
 #include "window_factory.hpp"
+#include "thread_factory.hpp"
 
 namespace wincpp
 {
@@ -16,6 +17,7 @@ namespace wincpp
         friend class memory_factory;
         friend class module_factory;
         friend class window_factory;
+        friend class thread_factory;
 
         /// <summary>
         /// Opens a process by its name.
@@ -54,6 +56,11 @@ namespace wincpp
         window_factory window_factory;
 
         /// <summary>
+        /// The thread factory object.
+        /// </summary>
+        thread_factory thread_factory;
+
+        /// <summary>
         /// Gets the process id.
         /// </summary>
         constexpr std::uint32_t id() const noexcept
@@ -85,7 +92,6 @@ namespace wincpp
         explicit process_t( std::shared_ptr< core::handle_t > handle, const core::process_entry_t& entry, memory_type type ) noexcept;
 
         core::process_entry_t entry;
-        
     };
 
 }  // namespace wincpp

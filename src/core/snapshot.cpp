@@ -9,9 +9,7 @@ namespace wincpp::core
         const auto last_error = GetLastError();
 
         if ( last_error != ERROR_NO_MORE_FILES )
-        {
             throw error::from_win32( last_error );
-        }
     }
 
     snapshot< snapshot_kind::process_t >::iterator::iterator( std::shared_ptr< handle_t > handle ) : handle( handle )

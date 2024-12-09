@@ -61,7 +61,8 @@ namespace wincpp
           entry( entry ),
           module_factory( this ),
           memory_factory( this, type ),
-          window_factory( this )
+          window_factory( this ),
+          thread_factory( this )
     {
     }
 
