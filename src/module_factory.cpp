@@ -17,10 +17,10 @@ namespace wincpp
 
     modules::module_t module_factory::main_module() const
     {
-        return fetch_module( p->name() );
+        return ( *this )[ p->name() ];
     }
 
-    modules::module_t module_factory::fetch_module( const std::string_view name ) const
+    core::result_t< modules::module_t > module_factory::fetch_module( const std::string_view name ) const noexcept
     {
         for ( const auto& entry : core::snapshot< core::snapshot_kind::module_t >::create( p->id() ) )
         {
@@ -30,7 +30,7 @@ namespace wincpp
             }
         }
 
-        throw std::runtime_error( std::format( "Failed to find module \"{}\"", name ) );
+        return std::unexpected( core::error::from_user( core::user_error_type_t::module_not_found_t, "Failed to find module \"{}\"", name ) );
     }
 
     modules::module_t module_factory::operator[]( const std::string_view name ) const
@@ -41,11 +41,14 @@ namespace wincpp
         std::transform( data.begin(), data.end(), data.begin(), ::tolower );
 
         // If the data doesn't contain the extension, add it.
-        if ( data.find( ".dll" ) == std::string::npos )
-        {
+        if ( data.find( ".dll" ) == std::string::npos && data.find( ".exe" ) == std::string::npos )
             data.append( ".dll" );
-        }
 
-        return fetch_module( data );
+        const auto result = fetch_module( data );
+
+        if ( result.has_value() )
+            return result.value();
+
+        throw result.error();
     }
 }  // namespace wincpp

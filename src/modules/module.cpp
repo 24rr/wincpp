@@ -26,14 +26,9 @@ namespace wincpp::modules
         nt_headers = reinterpret_cast< const IMAGE_NT_HEADERS * >( buffer.get() + dos_header->e_lfanew );
     }
 
-    std::string module_t::name() const noexcept
+    std::string_view module_t::name() const noexcept
     {
-        std::string name( entry.name );
-
-        // Convert the name to lowercase.
-        std::transform( name.begin(), name.end(), name.begin(), ::tolower );
-
-        return name;
+        return entry.name;
     }
 
     std::uintptr_t module_t::entry_point() const noexcept

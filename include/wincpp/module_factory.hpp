@@ -4,6 +4,8 @@
 #include "core/win.hpp"
 // clang-format on
 
+#include <wincpp/core/error.hpp>
+
 namespace wincpp::modules
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace wincpp
         /// </summary>
         /// <param name="name">The name of the module.</param>
         /// <returns>The module.</returns>
-        modules::module_t fetch_module( const std::string_view name ) const;
+        core::result_t< modules::module_t > fetch_module( const std::string_view name ) const noexcept;
 
         /// <summary>
         /// Gets a module by its name.
@@ -63,7 +65,7 @@ namespace wincpp
     };
 }  // namespace wincpp
 
-#include "modules/module.hpp"
 #include "modules/export.hpp"
-#include "modules/section.hpp"
+#include "modules/module.hpp"
 #include "modules/object.hpp"
+#include "modules/section.hpp"

@@ -27,6 +27,7 @@ set(header_files
 	"${include_dir}/wincpp/core/error.hpp"
 	"${include_dir}/wincpp/core/snapshot.hpp"
 	"${include_dir}/wincpp/core/errors/win32.hpp"
+	"${include_dir}/wincpp/core/errors/user.hpp"
 )
 
 # Add the library to the project
@@ -75,6 +76,7 @@ target_sources(wincpp PRIVATE
 	"core/snapshot.cpp"
 	
 	"core/errors/win32.cpp"
+	"core/errors/user.cpp"
 )
 
 # Add the include directory to the project

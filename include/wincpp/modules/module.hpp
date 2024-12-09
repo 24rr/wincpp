@@ -42,7 +42,7 @@ namespace wincpp::modules
         /// <summary>
         /// Gets the name of the module.
         /// </summary>
-        std::string name() const noexcept;
+        std::string_view name() const noexcept;
 
         /// <summary>
         /// Gets the memory address of the entry point of the module.

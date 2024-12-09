@@ -37,7 +37,7 @@ namespace wincpp::windows
         std::string title;
         title.resize( GetWindowTextLength( hwnd ) + 1 );
 
-        if ( !GetWindowText( hwnd, title.data(), title.size() ) && GetLastError() )
+        if ( !GetWindowText( hwnd, title.data(), static_cast< int >( title.size() ) ) && GetLastError() )
             throw core::error::from_win32( GetLastError() );
 
         return title;
@@ -48,7 +48,7 @@ namespace wincpp::windows
         std::string class_name;
         class_name.resize( 256 );
 
-        if ( !GetClassName( hwnd, class_name.data(), class_name.size() ) )
+        if ( !GetClassName( hwnd, class_name.data(), static_cast< int >( class_name.size() ) ) )
             throw core::error::from_win32( GetLastError() );
 
         return class_name;

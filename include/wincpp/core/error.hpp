@@ -1,9 +1,10 @@
 #pragma once
 
 #include <expected>
+#include <format>
 #include <system_error>
-
-#include "wincpp/core/errors/win32.hpp"
+#include <wincpp/core/errors/user.hpp>
+#include <wincpp/core/errors/win32.hpp>
 
 namespace wincpp::core
 {
@@ -12,16 +13,31 @@ namespace wincpp::core
     /// </summary>
     class error : public std::system_error
     {
-        /// <summary>
-        /// Creates a new error object with the given error code.
-        /// </summary>
-        error( std::error_code code ) noexcept;
+        using std::system_error::system_error;
 
        public:
         /// <summary>
         /// Creates a new error object with the given error code.
         /// </summary>
         static error from_win32( std::uint32_t code ) noexcept;
+
+        /// <summary>
+        /// Creates a new error object with the given user-defined error and formatted message.
+        /// </summary>
+        template< typename... T >
+        static error from_user( const user_error_type_t& code, const std::format_string< T... > format, T&&... args ) noexcept
+        {
+            const auto& user_error_code = std::error_code( static_cast< int >( code ), user_error_category::get() );
+
+            try
+            {
+                return error( user_error_code, std::format( format, std::forward< T >( args )... ) );
+            }
+            catch ( const std::exception& )
+            {
+                return error( user_error_code );
+            }
+        }
     };
 
     /// <summary>
