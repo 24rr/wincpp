@@ -72,7 +72,7 @@ namespace wincpp::patterns
         raita_t,
 
         /// <summary>
-        /// The Turo-BM alogithm for scanning.
+        /// The Turo-BM algorithm for scanning.
         /// </summary>
         tbm_t
     };
