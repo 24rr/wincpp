@@ -12,12 +12,14 @@ namespace wincpp::modules
     module_t::module_t( const memory_factory &factory, const core::module_entry_t &entry ) noexcept
         : memory_t( factory, entry.base_address, entry.base_size ),
           entry( entry ),
-          info()
+          info(),
+          _sections(),
+          _exports()
     {
         GetModuleInformation( factory.p->handle->native, reinterpret_cast< HMODULE >( entry.base_address ), &info, sizeof( info ) );
 
-        // Load the module data into the buffer.
-        buffer = factory.read( entry.base_address, info.SizeOfImage );
+        // Read the first page of the module.
+        buffer = read( address(), 0x1000 );
 
         // Get the DOS header.
         dos_header = reinterpret_cast< const IMAGE_DOS_HEADER * >( buffer.get() );
@@ -41,48 +43,84 @@ namespace wincpp::modules
         return entry.path;
     }
 
-    std::optional< module_t::export_t > module_t::fetch_export( const std::string_view name ) const
+    const std::list< std::shared_ptr< module_t::export_t > > &module_t::exports() const noexcept
     {
-        const auto directory_header = nt_headers->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
-
-        if ( !directory_header.VirtualAddress )
-            return std::nullopt;
-
-        const auto export_directory = reinterpret_cast< const IMAGE_EXPORT_DIRECTORY * >( buffer.get() + directory_header.VirtualAddress );
-
-        const auto names = reinterpret_cast< const std::uint32_t * >( buffer.get() + export_directory->AddressOfNames );
-        const auto ordinals = reinterpret_cast< const std::uint16_t * >( buffer.get() + export_directory->AddressOfNameOrdinals );
-        const auto functions = reinterpret_cast< const std::uint32_t * >( buffer.get() + export_directory->AddressOfFunctions );
-
-        for ( std::uint32_t i = 0; i < export_directory->NumberOfNames; ++i )
+        // Populate the export list.
+        if ( _exports.empty() )
         {
-            const auto export_name = reinterpret_cast< const char * >( buffer.get() + names[ i ] );
+            const auto directory_header = nt_headers->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
 
-            if ( name == export_name )
+            if ( directory_header.VirtualAddress )
             {
-                const auto ordinal = ordinals[ i ];
-                const auto address = functions[ ordinal ];
+                // Refresh the buffer.
+                const auto expbuffer = read( address() + directory_header.VirtualAddress, directory_header.Size );
 
-                return export_t( *this, export_name, address, ordinal );
+                // Define the RVA to offset helper.
+                const auto rva_to_offset = [ directory_header ]( std::uintptr_t rva ) -> std::uintptr_t
+                { return rva - directory_header.VirtualAddress; };
+
+                const auto export_directory =
+                    reinterpret_cast< const IMAGE_EXPORT_DIRECTORY * >( expbuffer.get() + rva_to_offset( directory_header.VirtualAddress ) );
+
+                const auto names = reinterpret_cast< const std::uint32_t * >( expbuffer.get() + rva_to_offset( export_directory->AddressOfNames ) );
+                const auto ordinals =
+                    reinterpret_cast< const std::uint16_t * >( expbuffer.get() + rva_to_offset( export_directory->AddressOfNameOrdinals ) );
+                const auto functions =
+                    reinterpret_cast< const std::uint32_t * >( expbuffer.get() + rva_to_offset( export_directory->AddressOfFunctions ) );
+
+                for ( std::uint32_t i = 0; i < export_directory->NumberOfNames; ++i )
+                {
+                    const auto ordinal = ordinals[ i ];
+                    const auto address = functions[ ordinal ];
+
+                    _exports.emplace_back( new export_t(
+                        shared_from_this(),
+                        reinterpret_cast< const char * >( expbuffer.get() + rva_to_offset( names[ i ] ) ),
+                        address,
+                        ordinals[ i ] ) );
+                }
             }
         }
 
-        return std::nullopt;
+        return _exports;
     }
 
-    std::optional< module_t::section_t > module_t::fetch_section( const std::string_view name ) const
+    std::shared_ptr< module_t::export_t > module_t::fetch_export( const std::string_view name ) const
     {
-        const auto section = IMAGE_FIRST_SECTION( nt_headers );
-
-        for ( std::uint16_t i = 0; i < nt_headers->FileHeader.NumberOfSections; ++i )
+        for ( const auto &e : exports() )
         {
-            const auto current_section = section[ i ];
-
-            if ( name == reinterpret_cast< const char * >( current_section.Name ) )
-                return section_t( *this, current_section );
+            if ( e->name() == name )
+                return e;
         }
 
-        return std::nullopt;
+        return nullptr;
+    }
+
+    const std::list< std::shared_ptr< module_t::section_t > > &module_t::sections() const noexcept
+    {
+        // Populate the sections list.
+        if ( _sections.empty() )
+        {
+            const auto section = IMAGE_FIRST_SECTION( nt_headers );
+
+            for ( std::uint16_t i = 0; i < nt_headers->FileHeader.NumberOfSections; ++i )
+            {
+                _sections.emplace_back( new section_t( shared_from_this(), section[ i ] ) );
+            }
+        }
+
+        return _sections;
+    }
+
+    std::shared_ptr< module_t::section_t > module_t::fetch_section( const std::string_view name ) const
+    {
+        for ( const auto &s : sections() )
+        {
+            if ( s->name() == name )
+                return s;
+        }
+
+        return nullptr;
     }
 
     std::vector< std::shared_ptr< rtti::object_t > > module_t::fetch_objects( const std::string_view mangled ) const
@@ -131,51 +169,12 @@ namespace wincpp::modules
         return objects;
     }
 
-    module_t::export_t module_t::operator[]( const std::string_view name ) const
+    const module_t::export_t &module_t::operator[]( const std::string_view name ) const
     {
-        return *fetch_export( name );
-    }
+        if ( const auto result = fetch_export( name ) )
+            return *result;
 
-    module_list::module_list( process_t *process ) noexcept
-        : process( process ),
-          snapshot( core::snapshot< core::snapshot_kind::module_t >::create( process->id() ) )
-    {
-    }
-
-    module_list::iterator module_list::begin() const noexcept
-    {
-        return iterator( process, snapshot.begin() );
-    }
-
-    module_list::iterator module_list::end() const noexcept
-    {
-        return iterator( process, snapshot.end() );
-    }
-
-    module_list::iterator::iterator( process_t *process, const core::snapshot< core::snapshot_kind::module_t >::iterator &it ) noexcept
-        : process( process ),
-          it( it )
-    {
-    }
-
-    module_t module_list::iterator::operator*() const noexcept
-    {
-        return module_t( process->memory_factory, *it );
-    }
-
-    module_list::iterator &module_list::iterator::operator++()
-    {
-        ++it;
-        return *this;
-    }
-
-    bool module_list::iterator::operator==( const iterator &other ) const noexcept
-    {
-        return it == other.it;
-    }
-
-    bool module_list::iterator::operator!=( const iterator &other ) const noexcept
-    {
-        return !operator==( other );
+        throw core::error::from_user(
+            core::user_error_type_t::export_not_found_t, "Failed to find export \"{}\" in module \"{}\"", name, this->name() );
     }
 }  // namespace wincpp::modules

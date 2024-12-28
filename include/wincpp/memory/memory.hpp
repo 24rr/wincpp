@@ -96,6 +96,18 @@ namespace wincpp::memory
         working_set_information_t working_set_information() const;
 
         /// <summary>
+        /// Reads the entire memory object.
+        /// </summary>
+        /// <returns>A shared pointer to the memory read.</returns>
+        inline std::shared_ptr< std::uint8_t[] > read() const;
+
+        /// <summary>
+        /// Reads the memory object into the buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into.</param>
+        inline void read( std::uint8_t* buffer ) const;
+
+        /// <summary>
         /// Reads memory from the process.
         /// </summary>
         /// <param name="address">The address to read from.</param>
@@ -152,7 +164,6 @@ namespace wincpp::memory
         memory_factory factory;
 
        private:
-
         bool is_valid_region( const memory::region_t& region ) const noexcept;
 
         std::uintptr_t _address;
@@ -172,6 +183,17 @@ namespace wincpp::memory
     constexpr bool memory_t::contains( std::uintptr_t address ) const noexcept
     {
         return _address <= address && address <= _address + _size;
+    }
+
+    inline std::shared_ptr< std::uint8_t[] > memory_t::read() const
+    {
+        return read( _address, _size );
+    }
+
+    inline void memory_t::read( std::uint8_t* buffer ) const
+    {
+        if ( !factory.read( _address, _size, buffer ) )
+            throw core::error::from_win32( GetLastError() );
     }
 
     inline std::shared_ptr< std::uint8_t[] > memory_t::read( std::uintptr_t address, std::size_t size ) const

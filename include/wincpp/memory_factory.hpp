@@ -86,6 +86,14 @@ namespace wincpp
         using region_compare = std::function< bool( const memory::region_t& ) >;
 
         /// <summary>
+        /// Reads memory from the process into a user-provided buffer.
+        /// </summary>
+        /// <param name="address">The address to read from.</param>
+        /// <param name="size">The size of the memory to read.</param>
+        /// <param name="buffer">The buffer to read into.</param>
+        bool read( std::uintptr_t address, std::size_t size, std::uint8_t* buffer ) const noexcept;
+
+        /// <summary>
         /// Reads memory from the process.
         /// </summary>
         /// <param name="address">The address to read from.</param>
@@ -109,7 +117,7 @@ namespace wincpp
         /// <param name="buffer">The buffer to write.</param>
         /// <param name="size">The size of the buffer.</param>
         /// <returns>The number of bytes written.</returns>
-        std::size_t write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const;
+        std::size_t write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const noexcept;
 
         /// <summary>
         /// Writes a value to memory.

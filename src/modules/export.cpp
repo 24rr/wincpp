@@ -9,9 +9,9 @@ namespace wincpp::modules
         return export_name;
     }
 
-    std::uintptr_t module_t::export_t::virtual_address() const noexcept
+    std::uintptr_t module_t::export_t::address() const noexcept
     {
-        return mod.address() + rva;
+        return mod->address() + rva;
     }
 
     std::uint16_t module_t::export_t::ordinal() const noexcept
@@ -20,12 +20,12 @@ namespace wincpp::modules
     }
 
     module_t::export_t::export_t(
-        const module_t& mod,
+        std::shared_ptr< const module_t > mod,
         const std::string_view name,
-        const std::uintptr_t address,
+        const std::uintptr_t rva,
         const std::uint16_t ordinal ) noexcept
         : export_name( name ),
-          rva( address ),
+          rva( rva ),
           ordinal_value( ordinal ),
           mod( mod )
     {
@@ -33,7 +33,7 @@ namespace wincpp::modules
 
     std::string module_t::export_t::to_string() const
     {
-        return std::format( "{0} -> {1} (0x{2:X})", mod.name(), name(), virtual_address() );
+        return std::format( "{0} -> {1} (0x{2:X})", mod->name(), name(), address() );
     }
 
     std::ostream &operator<<( std::ostream &os, const module_t::export_t &exp )

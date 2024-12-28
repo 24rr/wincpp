@@ -18,7 +18,7 @@ namespace wincpp::modules
         /// <summary>
         /// Gets the virtual address of the export.
         /// </summary>
-        std::uintptr_t virtual_address() const noexcept;
+        std::uintptr_t address() const noexcept;
 
         /// <summary>
         /// Gets the ordinal of the export.
@@ -43,9 +43,13 @@ namespace wincpp::modules
         /// <param name="name">The name of the export.</param>
         /// <param name="address">The address of the export.</param>
         /// <param name="ordinal">The ordinal of the export.</param>
-        explicit export_t( const module_t &mod, const std::string_view name, const std::uintptr_t address, const std::uint16_t ordinal ) noexcept;
+        explicit export_t(
+            std::shared_ptr< const module_t > mod,
+            const std::string_view name,
+            const std::uintptr_t address,
+            const std::uint16_t ordinal ) noexcept;
 
-        module_t mod;
+        std::shared_ptr< const module_t > mod;
         std::string export_name;
         std::uintptr_t rva;
         std::uint16_t ordinal_value;

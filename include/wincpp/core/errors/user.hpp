@@ -15,7 +15,12 @@ namespace wincpp::core
         /// <summary>
         /// The desired thread was not found.
         /// </summary>
-        thread_not_found_t
+        thread_not_found_t,
+
+        /// <summary>
+        /// The desired export was not found.
+        /// </summary>
+        export_not_found_t
     };
 
     /// <summary>

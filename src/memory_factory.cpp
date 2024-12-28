@@ -13,28 +13,39 @@ namespace wincpp
     {
     }
 
-    std::shared_ptr< std::uint8_t[] > memory_factory::read( std::uintptr_t address, std::size_t size ) const noexcept
+    bool memory_factory::read( std::uintptr_t address, std::size_t size, std::uint8_t* buffer ) const noexcept
     {
-        const auto buffer = std::shared_ptr< std::uint8_t[] >( new std::uint8_t[ size ] );
-
         switch ( type )
         {
             case wincpp::memory_type::local_t:
             {
-                std::memcpy( buffer.get(), reinterpret_cast< void* >( address ), size );
+                std::memcpy( buffer, reinterpret_cast< void* >( address ), size );
                 break;
             }
             case wincpp::memory_type::remote_t:
             {
-                ReadProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer.get(), size, nullptr );
+                std::size_t read;
+
+                if ( !ReadProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer, size, &read ) || read != size )
+                    return false;
                 break;
             }
         }
 
-        return buffer;
+        return true;
     }
 
-    std::size_t memory_factory::write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const
+    std::shared_ptr< std::uint8_t[] > memory_factory::read( std::uintptr_t address, std::size_t size ) const noexcept
+    {
+        const auto buffer = std::shared_ptr< std::uint8_t[] >( new std::uint8_t[ size ] );
+
+        if ( read( address, size, buffer.get() ) )
+            return buffer;
+
+        return nullptr;
+    }
+
+    std::size_t memory_factory::write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const noexcept
     {
         switch ( type )
         {
@@ -47,9 +58,7 @@ namespace wincpp
             {
                 std::size_t written;
 
-                if ( !WriteProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer.get(), size, &written ) )
-                    throw core::error::from_win32( GetLastError() );
-
+                WriteProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer.get(), size, &written );
                 return written;
             }
         }
@@ -91,8 +100,7 @@ namespace wincpp
     std::optional< std::uintptr_t > memory_factory::find_instance_of( const std::shared_ptr< modules::rtti::object_t >& object, bool parallelize )
         const
     {
-        return find_instance_of(
-            object, []( const memory::region_t& region ) { return true; }, parallelize );
+        return find_instance_of( object, []( const memory::region_t& region ) { return true; }, parallelize );
     }
 
     std::optional< std::uintptr_t > memory_factory::find_instance_of(

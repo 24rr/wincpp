@@ -15,7 +15,7 @@ namespace wincpp::modules
         /// <summary>
         /// Gets the name of the section.
         /// </summary>
-        std::string name() const noexcept;
+        std::string_view name() const noexcept;
 
        private:
         /// <summary>
@@ -23,9 +23,11 @@ namespace wincpp::modules
         /// </summary>
         /// <param name="mod">The mod object.</param>
         /// <param name="header">The section header.</param>
-        explicit section_t( const module_t& mod, const IMAGE_SECTION_HEADER& header ) noexcept;
+        explicit section_t( std::shared_ptr< const module_t > mod, const IMAGE_SECTION_HEADER& header ) noexcept;
 
-        module_t mod;
+        std::shared_ptr< const module_t > mod;
         IMAGE_SECTION_HEADER header;
+
+        std::size_t name_size;
     };
 }  // namespace wincpp::modules

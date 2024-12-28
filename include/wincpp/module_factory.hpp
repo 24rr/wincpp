@@ -2,9 +2,11 @@
 
 // clang-format off
 #include "core/win.hpp"
+#include "core/snapshot.hpp"
 // clang-format on
 
 #include <wincpp/core/error.hpp>
+#include <unordered_set>
 
 namespace wincpp::modules
 {
@@ -33,6 +35,9 @@ namespace wincpp
 
         process_t *p;
 
+        mutable std::vector< std::shared_ptr< modules::module_t > > module_list;
+        mutable std::unordered_set< std::uintptr_t > module_keys;
+
         /// <summary>
         /// Creates a new module factory object.
         /// </summary>
@@ -44,24 +49,24 @@ namespace wincpp
         /// Gets a list of modules in the process.
         /// </summary>
         /// <returns>The list of modules.</returns>
-        modules::module_list modules() const;
+        const std::vector< std::shared_ptr< modules::module_t > >& modules() const;
 
         /// <summary>
         /// Gets the main module of the process.
         /// </summary>
-        modules::module_t main_module() const;
+        const modules::module_t& main_module() const;
 
         /// <summary>
         /// Gets a module by its name.
         /// </summary>
         /// <param name="name">The name of the module.</param>
         /// <returns>The module.</returns>
-        core::result_t< modules::module_t > fetch_module( const std::string_view name ) const noexcept;
+        std::shared_ptr< modules::module_t > fetch_module( const std::string_view name ) const noexcept;
 
         /// <summary>
         /// Gets a module by its name.
         /// </summary>
-        modules::module_t operator[]( const std::string_view name ) const;
+        const modules::module_t& operator[]( const std::string_view name ) const;
     };
 }  // namespace wincpp
 
