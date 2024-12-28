@@ -2,6 +2,7 @@
 
 // clang-format off
 #include "wincpp/memory_factory.hpp"
+#include "wincpp/core/error.hpp"
 // clang-format on
 
 #include <Psapi.h>
