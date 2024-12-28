@@ -19,6 +19,11 @@ namespace wincpp::modules
         return ordinal_value;
     }
 
+    std::shared_ptr< const module_t > module_t::export_t::module() const noexcept
+    {
+        return mod;
+    }
+
     module_t::export_t::export_t(
         std::shared_ptr< const module_t > mod,
         const std::string_view name,

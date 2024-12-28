@@ -25,6 +25,8 @@ namespace wincpp::modules
         /// </summary>
         std::uint16_t ordinal() const noexcept;
 
+        std::shared_ptr< const module_t > module() const noexcept;
+
         /// <summary>
         /// Returns a string representation of the export.
         /// </summary>
