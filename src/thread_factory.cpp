@@ -6,6 +6,18 @@ namespace wincpp
     {
     }
 
+    void thread_factory::suspend_all() const
+    {
+        for ( const auto& thread : threads() )
+            thread.suspend();
+    }
+
+    void thread_factory::resume_all() const
+    {
+        for ( const auto& thread : threads() )
+            thread.resume();
+    }
+
     threads::thread_list thread_factory::threads() const
     {
         return threads::thread_list( p );

@@ -20,36 +20,11 @@ int main()
             return 1;
         }
 
-        const auto& main_module = process->module_factory.main_module();
+        process->thread_factory.suspend_all();
 
-        std::unordered_map< std::uintptr_t, std::shared_ptr< modules::module_t::export_t > > exports;
+        std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
 
-        for ( const auto& module : process->module_factory.modules() )
-        {
-            for ( const auto& e : module->exports() )
-            {
-                exports[ e->address() ] = e;
-            }
-        }
-
-        // Get the .rdata section.
-        if ( const auto& rdata = main_module.fetch_section( ".rdata" ) )
-        {
-            // Read the entire section.
-            const auto& buffer = rdata->read();
-
-            // Iterate over each address in the section.
-            for ( std::size_t i = 0; i < rdata->size(); i += sizeof( std::uintptr_t ) )
-            {
-                const auto& address = *reinterpret_cast< std::uintptr_t* >( buffer.get() + i );
-
-                // If the address is an export, print it.
-                if ( const auto& e = exports.find( address ); e != exports.end() )
-                {
-                    std::println( "{} @ IAT 0x{:X}", e->second->to_string(), rdata->address() + i );
-                }
-            }
-        }
+        process->thread_factory.resume_all();
     }
     catch ( const std::system_error& e )
     {

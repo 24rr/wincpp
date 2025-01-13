@@ -35,6 +35,16 @@ namespace wincpp
         threads::thread_list threads() const;
 
         /// <summary>
+        /// Suspends all threads in the process.
+        /// </summary>
+        void suspend_all() const;
+
+        /// <summary>
+        /// Resumes all threads in the process.
+        /// </summary>
+        void resume_all() const;
+
+        /// <summary>
         /// Gets the thread by its id.
         /// </summary>
         /// <param name="index">The id of the thread.</param>
