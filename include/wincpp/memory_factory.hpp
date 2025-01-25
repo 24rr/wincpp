@@ -23,12 +23,20 @@ namespace wincpp::memory
     /// </summary>
     class region_list;
 
+    /// <summary>
+    /// Forward declare the region_t struct.
+    /// </summary>
     struct region_t;
 
     /// <summary>
     /// Forward declare the working_set_information_t struct.
     /// </summary>
     struct working_set_information_t;
+
+    /// <summary>
+    /// Forward declare the allocation_t struct.
+    /// </summary>
+    struct allocation_t;
 }  // namespace wincpp::memory
 
 namespace wincpp::modules
@@ -176,6 +184,32 @@ namespace wincpp
         /// <returns>The address of the object.</returns>
         std::optional< std::uintptr_t >
         find_instance_of( const std::shared_ptr< modules::rtti::object_t >& object, const region_compare& compare, bool parallelize = false ) const;
+
+        /// <summary>
+        /// Frees the memory at the specified address.
+        /// </summary>
+        /// <param name="address">The address of the memory to free.</param>
+        /// <param name="size">The size of the memory to free.</param>
+        void free( std::uintptr_t address ) const;
+
+        /// <summary>
+        /// Creates a new allocation in the process.
+        /// </summary>
+        /// <param name="size">The size of the allocation.</param>
+        /// <param name="protection">The protection flags of the allocation.</param>
+        /// <param name="owns">Whether the allocation owns the memory.</param>
+        /// <returns>A shared pointer to the allocation.</returns>
+        std::shared_ptr< memory::allocation_t > allocate( std::size_t size, memory::protection_flags_t protection, bool owns = true ) const;
+
+        /// <summary>
+        /// Creates a new allocation for the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type to allocate.</typeparam>
+        /// <param name="protection">The protection flags of the allocation.</param>
+        /// <param name="owns">Whether the allocation owns the memory.</param>
+        /// <returns>A shared pointer to the allocation.</returns>
+        template< typename T >
+        std::shared_ptr< memory::allocation_t > allocate( memory::protection_flags_t protection, bool owns = true ) const;
     };
 
     template< typename T >
@@ -216,4 +250,9 @@ namespace wincpp
         write( address, buffer, value.size() + 1 );
     }
 
+    template< typename T >
+    inline std::shared_ptr< memory::allocation_t > memory_factory::allocate( memory::protection_flags_t protection, bool owns ) const
+    {
+        return allocate( sizeof( T ), protection, owns );
+    }
 }  // namespace wincpp

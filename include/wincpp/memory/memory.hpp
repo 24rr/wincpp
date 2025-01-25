@@ -111,10 +111,10 @@ namespace wincpp::memory
         /// <summary>
         /// Reads memory from the process.
         /// </summary>
-        /// <param name="address">The address to read from.</param>
+        /// <param name="address">The offset to read from. The offset is relative to the base address of this memory object.</param>
         /// <param name="size">The size of the memory to read.</param>
         /// <returns>The memory read.</returns>
-        inline std::shared_ptr< std::uint8_t[] > read( std::uintptr_t address, std::size_t size ) const;
+        inline std::shared_ptr< std::uint8_t[] > read( std::uintptr_t offset, std::size_t size ) const;
 
         /// <summary>
         /// Reads a value from memory.
@@ -123,7 +123,7 @@ namespace wincpp::memory
         /// <param name="address">The address to read from.</param>
         /// <returns>The value read.</returns>
         template< typename T >
-        inline T read( std::uintptr_t address ) const;
+        inline T read( std::uintptr_t offset ) const;
 
         /// <summary>
         /// Writes memory to the process.
@@ -132,7 +132,7 @@ namespace wincpp::memory
         /// <param name="buffer">The buffer to write.</param>
         /// <param name="size">The size of the buffer.</param>
         /// <returns>The number of bytes written.</returns>
-        inline std::size_t write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const;
+        inline std::size_t write( std::uintptr_t offset, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const;
 
         /// <summary>
         /// Writes a value to memory.
@@ -141,7 +141,7 @@ namespace wincpp::memory
         /// <param name="address">The address to write to.</param>
         /// <param name="value">The value to write.</param>
         template< typename T >
-        inline void write( std::uintptr_t address, T value ) const;
+        inline void write( std::uintptr_t offset, T value ) const;
 
         /// <summary>
         /// Gets the regions of the memory object.
@@ -163,7 +163,7 @@ namespace wincpp::memory
         std::vector< std::uintptr_t > find_all( const patterns::pattern_t& pattern ) const noexcept;
 
         memory_factory factory;
-
+       
        private:
         bool is_valid_region( const memory::region_t& region ) const noexcept;
 
@@ -197,25 +197,25 @@ namespace wincpp::memory
             throw core::error::from_win32( GetLastError() );
     }
 
-    inline std::shared_ptr< std::uint8_t[] > memory_t::read( std::uintptr_t address, std::size_t size ) const
+    inline std::shared_ptr< std::uint8_t[] > memory_t::read( std::uintptr_t offset, std::size_t size ) const
     {
-        return factory.read( address, size );
+        return factory.read( _address + offset, size );
     }
 
-    inline std::size_t memory_t::write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const
+    inline std::size_t memory_t::write( std::uintptr_t offset, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const
     {
-        return factory.write( address, buffer, size );
-    }
-
-    template< typename T >
-    inline T memory_t::read( std::uintptr_t address ) const
-    {
-        return factory.read< T >( address );
+        return factory.write( _address + offset, buffer, size );
     }
 
     template< typename T >
-    inline void memory_t::write( std::uintptr_t address, T value ) const
+    inline T memory_t::read( std::uintptr_t offset ) const
     {
-        factory.write< T >( address, value );
+        return factory.read< T >( _address + offset );
+    }
+
+    template< typename T >
+    inline void memory_t::write( std::uintptr_t offset, T value ) const
+    {
+        factory.write< T >( _address + offset, value );
     }
 }  // namespace wincpp::memory

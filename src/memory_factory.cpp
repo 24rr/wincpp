@@ -149,4 +149,49 @@ namespace wincpp
 
         return address ? std::make_optional( address.load() ) : std::nullopt;
     }
+
+    void memory_factory::free( std::uintptr_t address ) const
+    {
+        switch ( type )
+        {
+            case wincpp::memory_type::local_t:
+            {
+                VirtualFree( reinterpret_cast< void* >( address ), 0, MEM_RELEASE );
+                break;
+            }
+            case wincpp::memory_type::remote_t:
+            {
+                VirtualFreeEx( p->handle->native, reinterpret_cast< void* >( address ), 0, MEM_RELEASE );
+                break;
+            }
+        }
+    }
+
+    std::shared_ptr< memory::allocation_t > memory_factory::allocate( std::size_t size, memory::protection_flags_t protection, bool owns ) const
+    {
+        switch ( type )
+        {
+            case wincpp::memory_type::local_t:
+            {
+                const auto address = reinterpret_cast< std::uintptr_t >( VirtualAlloc( nullptr, size, MEM_COMMIT | MEM_RESERVE, protection.get() ) );
+
+                if ( !address )
+                    throw core::error::from_win32( GetLastError() );
+
+                return std::shared_ptr< memory::allocation_t >( new memory::allocation_t( *this, address, size, owns ) );
+            }
+            case wincpp::memory_type::remote_t:
+            {
+                const auto address = reinterpret_cast< std::uintptr_t >(
+                    VirtualAllocEx( p->handle->native, nullptr, size, MEM_COMMIT | MEM_RESERVE, protection.get() ) );
+
+                if ( !address )
+                    throw core::error::from_win32( GetLastError() );
+
+                return std::shared_ptr< memory::allocation_t >( new memory::allocation_t( *this, address, size, owns ) );
+            }
+        }
+
+        return nullptr;
+    }
 }  // namespace wincpp

@@ -98,3 +98,4 @@ namespace wincpp
 
 #include "memory/pointer.hpp"
 #include "memory/region.hpp"
+#include "memory/allocation.hpp"

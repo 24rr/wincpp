@@ -9,6 +9,7 @@ set(header_files
 	"${include_dir}/wincpp/thread_factory.hpp"
 
 	"${include_dir}/wincpp/memory/memory.hpp"
+	"${include_dir}/wincpp/memory/allocation.hpp"
 	"${include_dir}/wincpp/memory/pointer.hpp"
 	"${include_dir}/wincpp/memory/region.hpp"
 	"${include_dir}/wincpp/memory/protection.hpp"
@@ -59,6 +60,7 @@ target_sources(wincpp PRIVATE
 	"window_factory.cpp"
 	"thread_factory.cpp"
 
+	"memory/allocation.cpp"
 	"memory/pointer.cpp"
 	"memory/region.cpp"
 	"memory/protection.cpp"
@@ -83,7 +85,7 @@ target_sources(wincpp PRIVATE
 	
 	"core/errors/win32.cpp"
 	"core/errors/user.cpp"
-)
+ "memory/allocation.cpp")
 
 # Add the include directory to the project
 target_include_directories(wincpp PRIVATE ${include_dir})

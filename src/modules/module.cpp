@@ -19,7 +19,7 @@ namespace wincpp::modules
         GetModuleInformation( factory.p->handle->native, reinterpret_cast< HMODULE >( entry.base_address ), &info, sizeof( info ) );
 
         // Read the first page of the module.
-        buffer = read( address(), 0x1000 );
+        buffer = read( 0x0, 0x1000 );
 
         // Get the DOS header.
         dos_header = reinterpret_cast< const IMAGE_DOS_HEADER * >( buffer.get() );
@@ -53,7 +53,7 @@ namespace wincpp::modules
             if ( directory_header.VirtualAddress )
             {
                 // Refresh the buffer.
-                const auto expbuffer = read( address() + directory_header.VirtualAddress, directory_header.Size );
+                const auto expbuffer = read( directory_header.VirtualAddress, directory_header.Size );
 
                 // Define the RVA to offset helper.
                 const auto rva_to_offset = [ directory_header ]( std::uintptr_t rva ) -> std::uintptr_t
