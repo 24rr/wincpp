@@ -21,7 +21,7 @@ namespace wincpp::memory
         /// </summary>
         struct deleter final
         {
-            deleter( std::shared_ptr< core::handle_t > handle ) noexcept;
+            deleter( std::shared_ptr< core::handle_t > handle, bool scoped ) noexcept;
 
             /// <summary>
             /// Deletes the protection operation object.
@@ -30,6 +30,7 @@ namespace wincpp::memory
 
            private:
             std::shared_ptr< core::handle_t > handle;
+            bool scoped;
         };
 
        private:

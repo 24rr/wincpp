@@ -166,7 +166,7 @@ namespace wincpp
         /// <param name="address">The address of the memory to protect.</param>
         /// <param name="size">The size of the memory to protect.</param>
         /// <param name="new_flags">The new protection flags.</param>
-        memory::protection_operation protect( std::uintptr_t address, std::size_t size, memory::protection_flags_t new_flags ) const;
+        memory::protection_operation protect( std::uintptr_t address, std::size_t size, memory::protection_flags_t new_flags, bool scoped = true ) const;
 
         /// <summary>
         /// Gets the working set information for the specified address.

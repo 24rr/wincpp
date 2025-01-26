@@ -16,16 +16,19 @@ namespace wincpp::memory
     {
     }
 
-    protection_operation_t::deleter::deleter( std::shared_ptr< core::handle_t > handle ) noexcept : handle( handle )
+    protection_operation_t::deleter::deleter( std::shared_ptr< core::handle_t > handle, bool scoped ) noexcept : handle( handle ), scoped( scoped )
     {
     }
 
     void protection_operation_t::deleter::operator()( protection_operation_t* operation ) const
     {
-        DWORD old_flags;
-        if ( !VirtualProtectEx(
-                 handle->native, reinterpret_cast< void* >( operation->address ), operation->size, operation->old_flags.get(), &old_flags ) )
-            throw core::error::from_win32( GetLastError() );
+        if ( scoped )
+        {
+            DWORD old_flags;
+            if ( !VirtualProtectEx(
+                     handle->native, reinterpret_cast< void* >( operation->address ), operation->size, operation->old_flags.get(), &old_flags ) )
+                throw core::error::from_win32( GetLastError() );
+        }
 
         delete operation;
     }

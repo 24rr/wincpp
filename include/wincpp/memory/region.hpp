@@ -72,13 +72,6 @@ namespace wincpp::memory
         /// </summary>
         protection_flags_t protection() const noexcept;
 
-        /// <summary>
-        /// Changes the protection of the memory region.
-        /// </summary>
-        /// <param name="new_flags">The new protection flags.</param>
-        /// <returns>The protection operation object.</returns>
-        protection_operation protect( protection_flags_t new_flags ) const;
-
        private:
         /// <summary>
         /// Creates a new region object.

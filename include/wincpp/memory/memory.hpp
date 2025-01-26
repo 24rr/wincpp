@@ -171,6 +171,13 @@ namespace wincpp::memory
         /// <returns>The relative locations.</returns>
         std::vector< std::uintptr_t > find_all( const patterns::pattern_t& pattern ) const noexcept;
 
+        /// <summary>
+        /// Changes the protection of the memory region.
+        /// </summary>
+        /// <param name="new_flags">The new protection flags.</param>
+        /// <returns>The protection operation object.</returns>
+        protection_operation protect( protection_flags_t new_flags, bool scoped ) const;
+
         memory_factory factory;
 
        private:
