@@ -73,8 +73,13 @@ namespace wincpp::memory
         return results;
     }
 
+    protection_operation memory_t::protect( std::uintptr_t offset, std::size_t size, protection_flags_t new_flags, bool scoped ) const
+    {
+        return factory.protect( address() + offset, size, new_flags, scoped );
+    }
+
     protection_operation memory_t::protect( protection_flags_t new_flags, bool scoped ) const
     {
-        return factory.protect( address(), size(), new_flags, scoped );
+        return protect( 0, _size, new_flags, scoped );
     }
 }  // namespace wincpp::memory

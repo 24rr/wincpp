@@ -174,6 +174,16 @@ namespace wincpp::memory
         /// <summary>
         /// Changes the protection of the memory region.
         /// </summary>
+        /// <param name="offset">The offset of the memory region.</param>
+        /// <param name="size">The size of the memory region.</param>
+        /// <param name="new_flags">The new protection flags.</param>
+        /// <param name="scoped">Whether the protection operation is scoped.</param>
+        /// <returns>A protection operation object.</returns>
+        protection_operation protect( std::uintptr_t offset, std::size_t size, protection_flags_t new_flags, bool scoped ) const;
+
+        /// <summary>
+        /// Changes the protection of the memory region.
+        /// </summary>
         /// <param name="new_flags">The new protection flags.</param>
         /// <returns>The protection operation object.</returns>
         protection_operation protect( protection_flags_t new_flags, bool scoped ) const;
