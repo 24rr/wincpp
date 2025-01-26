@@ -44,17 +44,6 @@ namespace wincpp
 
     std::shared_ptr< modules::module_t > module_factory::fetch_module( const std::string_view name ) const noexcept
     {
-        for ( const auto& m : modules() )
-        {
-            if ( m->name() == name )
-                return m;
-        }
-
-        return nullptr;
-    }
-
-    const modules::module_t& module_factory::operator[]( const std::string_view name ) const
-    {
         std::string data( name );
 
         // Convert the string to lowercase.
@@ -64,7 +53,18 @@ namespace wincpp
         if ( data.find( ".dll" ) == std::string::npos && data.find( ".exe" ) == std::string::npos )
             data.append( ".dll" );
 
-        if ( const auto result = fetch_module( data ) )
+        for ( const auto& m : modules() )
+        {
+            if ( m->name() == data )
+                return m;
+        }
+
+        return nullptr;
+    }
+
+    const modules::module_t& module_factory::operator[]( const std::string_view name ) const
+    {
+        if ( const auto result = fetch_module( name ) )
             return *result;
 
         throw core::error::from_user( core::user_error_type_t::module_not_found_t, "Failed to find module \"{}\"", name );
