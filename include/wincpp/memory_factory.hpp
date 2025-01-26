@@ -126,6 +126,15 @@ namespace wincpp
         /// <param name="size">The size of the buffer.</param>
         /// <returns>The number of bytes written.</returns>
         std::size_t write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const noexcept;
+        
+        /// <summary>
+        /// Writes memory to the process.
+        /// </summary>
+        /// <param name="address">The address to write to.</param>
+        /// <param name="buffer">The buffer to write.</param>
+        /// <param name="size">The size of the buffer.</param>
+        /// <returns>The number of bytes written.</returns>
+        std::size_t write( std::uintptr_t address, const std::uint8_t* buffer, std::size_t size ) const noexcept;
 
         /// <summary>
         /// Writes a value to memory.

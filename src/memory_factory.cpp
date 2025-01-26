@@ -47,18 +47,23 @@ namespace wincpp
 
     std::size_t memory_factory::write( std::uintptr_t address, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const noexcept
     {
+        return write( address, buffer.get(), size );
+    }
+
+    std::size_t memory_factory::write( std::uintptr_t address, const std::uint8_t* buffer, std::size_t size ) const noexcept
+    {
         switch ( type )
         {
             case wincpp::memory_type::local_t:
             {
-                std::memmove( reinterpret_cast< void* >( address ), buffer.get(), size );
+                std::memmove( reinterpret_cast< void* >( address ), buffer, size );
                 break;
             }
             case wincpp::memory_type::remote_t:
             {
                 std::size_t written;
 
-                WriteProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer.get(), size, &written );
+                WriteProcessMemory( p->handle->native, reinterpret_cast< void* >( address ), buffer, size, &written );
                 return written;
             }
         }

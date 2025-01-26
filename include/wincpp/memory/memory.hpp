@@ -132,6 +132,15 @@ namespace wincpp::memory
         /// <param name="buffer">The buffer to write.</param>
         /// <param name="size">The size of the buffer.</param>
         /// <returns>The number of bytes written.</returns>
+        inline std::size_t write( std::uintptr_t offset, const std::uint8_t* buffer, std::size_t size ) const;
+
+        /// <summary>
+        /// Writes memory to the process.
+        /// </summary>
+        /// <param name="address">The address to write to.</param>
+        /// <param name="buffer">The buffer to write.</param>
+        /// <param name="size">The size of the buffer.</param>
+        /// <returns>The number of bytes written.</returns>
         inline std::size_t write( std::uintptr_t offset, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const;
 
         /// <summary>
@@ -163,7 +172,7 @@ namespace wincpp::memory
         std::vector< std::uintptr_t > find_all( const patterns::pattern_t& pattern ) const noexcept;
 
         memory_factory factory;
-       
+
        private:
         bool is_valid_region( const memory::region_t& region ) const noexcept;
 
@@ -203,6 +212,11 @@ namespace wincpp::memory
     }
 
     inline std::size_t memory_t::write( std::uintptr_t offset, std::shared_ptr< std::uint8_t[] > buffer, std::size_t size ) const
+    {
+        return factory.write( _address + offset, buffer, size );
+    }
+
+    inline std::size_t memory_t::write( std::uintptr_t offset, const std::uint8_t* buffer, std::size_t size ) const
     {
         return factory.write( _address + offset, buffer, size );
     }
