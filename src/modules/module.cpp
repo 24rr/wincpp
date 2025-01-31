@@ -95,7 +95,7 @@ namespace wincpp::modules
                         if ( !exp )
                             continue;
 
-                        _exports.emplace_back( new export_t{ exp->module(), name, exp->address(), exp->ordinal() } );
+                        _exports.emplace_back( new export_t{ exp->module(), name, exp->rva, exp->ordinal() } );
                         continue;
                     }
 
