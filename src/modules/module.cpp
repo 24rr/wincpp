@@ -71,7 +71,9 @@ namespace wincpp::modules
                 for ( std::uint32_t i = 0; i < export_directory->NumberOfNames; ++i )
                 {
                     const auto ordinal = ordinals[ i ];
-                    auto address = functions[ ordinal ];
+                    const auto address = functions[ ordinal ];
+
+                    const auto name = reinterpret_cast< const char * >( expbuffer.get() + rva_to_offset( names[ i ] ) );
 
                     // Check if the address is forwarded.
                     if ( address >= directory_header.VirtualAddress && address < directory_header.VirtualAddress + directory_header.Size )
@@ -93,14 +95,11 @@ namespace wincpp::modules
                         if ( !exp )
                             continue;
 
-                        _exports.push_back( exp );
+                        _exports.emplace_back( new export_t{ exp->module(), name, exp->address(), exp->ordinal() } );
+                        continue;
                     }
 
-                    _exports.emplace_back( new export_t(
-                        shared_from_this(),
-                        reinterpret_cast< const char * >( expbuffer.get() + rva_to_offset( names[ i ] ) ),
-                        address,
-                        ordinals[ i ] ) );
+                    _exports.emplace_back( new export_t( shared_from_this(), name, address, ordinals[ i ] ) );
                 }
             }
         }
