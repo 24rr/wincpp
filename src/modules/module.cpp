@@ -71,7 +71,30 @@ namespace wincpp::modules
                 for ( std::uint32_t i = 0; i < export_directory->NumberOfNames; ++i )
                 {
                     const auto ordinal = ordinals[ i ];
-                    const auto address = functions[ ordinal ];
+                    auto address = functions[ ordinal ];
+
+                    // Check if the address is forwarded.
+                    if ( address >= directory_header.VirtualAddress && address < directory_header.VirtualAddress + directory_header.Size )
+                    {
+                        const std::string forward = reinterpret_cast< const char * >( expbuffer.get() + rva_to_offset( address ) );
+
+                        // Get the module name and the export name.
+                        const auto dot = forward.find( '.' );
+                        const auto module_name = forward.substr( 0, dot );
+                        const auto export_name = forward.substr( dot + 1 );
+
+                        const auto &m = factory.p->module_factory.fetch_module( module_name );
+
+                        if ( !m )
+                            continue;
+
+                        const auto &exp = m->fetch_export( export_name );
+
+                        if ( !exp )
+                            continue;
+
+                        address = exp->address();
+                    }
 
                     _exports.emplace_back( new export_t(
                         shared_from_this(),
