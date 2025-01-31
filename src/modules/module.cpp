@@ -93,7 +93,7 @@ namespace wincpp::modules
                         if ( !exp )
                             continue;
 
-                        address = exp->address();
+                        _exports.push_back( exp );
                     }
 
                     _exports.emplace_back( new export_t(
