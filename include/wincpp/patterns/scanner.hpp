@@ -129,7 +129,7 @@ namespace wincpp::patterns
                 break;
 
             results.push_back( i + result );
-            i += result + pattern.size;
+            i += result + 1;
         }
 
         return results;
