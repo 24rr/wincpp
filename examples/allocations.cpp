@@ -21,13 +21,12 @@ int main()
             return 1;
         }
 
-        const std::string value = "Hello!";
+        const auto& kernel32 = process->module_factory[ "kernel32.dll" ];
 
-        const auto& allocation = process->memory_factory.allocate( value.size() + 1, memory::protection_flags_t::readwrite, true );
-
-        allocation->write( 0, value );
-
-        std::println( "[Info] Wrote \"{}\" to 0x{:x}.", value, allocation->address() );
+        for ( const auto& exp : kernel32.exports() )
+        {
+            std::println( "[+] Export: {}", exp->to_string() );
+        }
     }
     catch ( const std::system_error& e )
     {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <iostream>
 
 #include "memory.hpp"
@@ -43,6 +44,14 @@ namespace wincpp::memory
             {
                 factory.write< T >( address, value );
                 return *this;
+            }
+
+            /// <summary>
+            /// Gets the values as a pointer.
+            /// </summary>
+            inline operator pointer_t< U >() const
+            {
+                return pointer_t< U >( factory.read< T >( address ), factory );
             }
 
             /// <summary>
@@ -99,6 +108,16 @@ namespace wincpp::memory
             friend bool operator!=( const T &lhs, const value_t &rhs )
             {
                 return lhs != static_cast< T >( rhs );
+            }
+
+            friend bool operator==( const value_t &lhs, const value_t &rhs )
+            {
+                return static_cast< T >( lhs ) == static_cast< T >( rhs );
+            }
+
+            friend bool operator!=( const value_t &lhs, const value_t &rhs )
+            {
+                return static_cast< T >( lhs ) != static_cast< T >( rhs );
             }
 
             std::uintptr_t address;
@@ -160,6 +179,16 @@ namespace wincpp::memory
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Increments the pointer by the specified offset.
+        /// </summary>
+        /// <param name="offset">The offset to increment the pointer by.</param>
+        template< std::integral U >
+        inline pointer_t< T > operator+( U offset ) const noexcept
+        {
+            return pointer_t< T >( value.address + offset, value.factory );
         }
 
         /// <summary>
