@@ -214,7 +214,7 @@ namespace wincpp::memory
 
     inline std::shared_ptr< std::uint8_t[] > memory_t::read() const
     {
-        return read( _address, _size );
+        return read( 0, _size );
     }
 
     inline void memory_t::read( std::uint8_t* buffer ) const
