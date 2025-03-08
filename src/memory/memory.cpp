@@ -46,7 +46,7 @@ namespace wincpp::memory
 
             std::span< std::uint8_t > bytes( buffer.get(), region.size() );
 
-            if ( const auto result = patterns::scanner::find< patterns::scanner::algorithm_t::bmh_t >( bytes, pattern ) )
+            if ( const auto result = patterns::scanner::find< patterns::scanner::algorithm_t::naive_t >( bytes, pattern ) )
                 return region.address() + *result;
         }
 
@@ -66,7 +66,7 @@ namespace wincpp::memory
 
             std::span< std::uint8_t > bytes( buffer.get(), region.size() );
 
-            for ( const auto &result : patterns::scanner::find_all< patterns::scanner::algorithm_t::bmh_t >( bytes, pattern ) )
+            for ( const auto &result : patterns::scanner::find_all< patterns::scanner::algorithm_t::naive_t >( bytes, pattern ) )
                 results.push_back( region.address() + result );
         }
 
